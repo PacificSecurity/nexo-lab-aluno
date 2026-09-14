@@ -19,41 +19,43 @@ Quem fez a atividade encontrará nomes de usuário, identificadores e códigos d
 - **Arquitetura compatível com as imagens `linux/amd64`.** Elas são destinadas a processadores Intel ou AMD. Em Macs com Apple Silicon e outras máquinas ARM, funcionam por emulação, com possível perda de desempenho. Nos Macs com Apple Silicon, ative a opção de emulação com Rosetta no Docker Desktop.
 - **Cerca de 3 GB livres em disco e 2 GB de memória disponíveis para o Docker**, além da porta 8080 livre.
 
-Com o Docker instalado e o pacote baixado, você pode usar o laboratório sem conexão com a internet.
+Depois de baixar as imagens, o laboratório funciona sem conexão com a internet.
 
 O [guia de instalação e uso](LEIA-ME.md) detalha esses requisitos e explica como verificá-los.
 
 ## Instalação
 
-Baixe o pacote, caso ainda não o tenha:
+São dois downloads: este repositório, que traz os scripts e os manuais, e as imagens do Docker, que são grandes demais para o versionamento e ficam hospedadas à parte.
 
-**[nexo-lab-aluno-amd64.tar.gz](https://atividade-preselec-pacsec.s3.us-east-1.amazonaws.com/nexo-lab-aluno-amd64.tar.gz)** — aproximadamente 218 MB
-
-```
-SHA-256  160f49a597720382278cbb020dcb78cf4d31b9c4c462ebf695dd48be2255a818
-MD5      19b8a9133d696f55d1bca0d88534ff23
-```
-
-Antes de extrair o pacote, confira se o hash SHA-256 corresponde ao valor acima:
+Clone o repositório e entre na pasta:
 
 ```bash
-shasum -a 256 nexo-lab-aluno-amd64.tar.gz
+git clone https://github.com/PacificSecurity/nexo-lab-aluno
+cd nexo-lab-aluno
+```
+
+Baixe as imagens **para dentro dessa mesma pasta**:
+
+**[imagens.tar.gz](https://atividade-preselec-pacsec.s3.us-east-1.amazonaws.com/imagens.tar.gz)** — aproximadamente 220 MB
+
+```
+SHA-256  28ba5ccc2b8a7b69338daa0508a67d42c4968ae6556a85916d87c90d98fc1899
+MD5      5b95e83d462631e0d8ce5b718312b0af
+```
+
+Antes de carregar, confira se o hash SHA-256 corresponde ao valor acima:
+
+```bash
+shasum -a 256 imagens.tar.gz
 ```
 
 Se preferir conferir o MD5, use o comando abaixo no Linux ou no WSL:
 
 ```bash
-md5sum nexo-lab-aluno-amd64.tar.gz
+md5sum imagens.tar.gz
 ```
 
-No macOS, o comando equivalente é `md5 nexo-lab-aluno-amd64.tar.gz`.
-
-Extraia e entre na pasta `lab`:
-
-```bash
-tar -xzf nexo-lab-aluno-amd64.tar.gz
-cd lab
-```
+No macOS, o comando equivalente é `md5 imagens.tar.gz`.
 
 Com o Docker em execução, carregue as imagens e inicie o laboratório:
 
@@ -61,6 +63,8 @@ Com o Docker em execução, carregue as imagens e inicie o laboratório:
 docker load -i imagens.tar.gz
 ./lab.sh subir
 ```
+
+O `docker load` demora alguns minutos na primeira vez.
 
 Abra [http://localhost:8080](http://localhost:8080) e crie sua conta com o código de organização **OCEAN-A-2026**.
 

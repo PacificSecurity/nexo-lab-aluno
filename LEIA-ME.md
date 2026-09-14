@@ -11,17 +11,17 @@ docker compose version
 
 **Terminal com Bash disponível.** No macOS e no Linux, use o terminal do sistema. No Windows, use o WSL com a integração do Docker habilitada ou o Git Bash. Os comandos deste guia não funcionam diretamente no PowerShell nem no Prompt de Comando.
 
-**Arquitetura compatível com as imagens `linux/amd64`.** O pacote inclui imagens destinadas a processadores Intel ou AMD. Em Macs com Apple Silicon e outras máquinas ARM, elas funcionam por emulação, o que pode tornar a inicialização mais lenta e gerar um aviso de diferença de plataforma. Nos Macs com Apple Silicon, ative a opção de emulação com Rosetta nas configurações do Docker Desktop para melhorar o desempenho.
+**Arquitetura compatível com as imagens `linux/amd64`.** As imagens são destinadas a processadores Intel ou AMD. Em Macs com Apple Silicon e outras máquinas ARM, elas funcionam por emulação, o que pode tornar a inicialização mais lenta e gerar um aviso de diferença de plataforma. Nos Macs com Apple Silicon, ative a opção de emulação com Rosetta nas configurações do Docker Desktop para melhorar o desempenho.
 
 **Recursos.** Reserve cerca de 3 GB livres em disco e 2 GB de memória para o Docker. O ambiente usa quatro contêineres.
 
 **Porta 8080 livre.** Se ela estiver ocupada, você pode usar outra porta. Veja a seção [Configuração](#configuração).
 
-Com o Docker instalado e o pacote baixado, **você pode usar o laboratório sem conexão com a internet**. As imagens já estão incluídas no pacote, e os serviços necessários funcionam localmente.
+Depois de baixar as imagens, **o laboratório funciona sem conexão com a internet**. Todos os serviços rodam localmente.
 
 ## Iniciar o laboratório
 
-Extraia o pacote e entre na pasta `lab`. Com o Docker em execução, carregue as imagens e inicie o laboratório:
+Coloque o `imagens.tar.gz` na pasta do repositório, onde estão o `lab.sh` e o `docker-compose.yml`. Com o Docker em execução, carregue as imagens e inicie o laboratório:
 
 ```bash
 docker load -i imagens.tar.gz
