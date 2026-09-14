@@ -1,0 +1,127 @@
+name: nexo-lab
+
+x-hardening: &hardening
+  restart: "no"
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  db:
+    image: postgres:16-alpine
+    <<: *hardening
+    environment:
+      POSTGRES_USER: nexo
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-nexo-lab-local}
+      POSTGRES_DB: nexo
+      PGDATA: /var/lib/postgresql/data/pgdata
+    cap_add:
+      - CHOWN
+      - DAC_READ_SEARCH
+      - FOWNER
+      - SETGID
+      - SETUID
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexo -d nexo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 448M
+
+  app:
+    image: nexo-lab/app:1.1
+    <<: *hardening
+    environment:
+      DATABASE_URL: postgresql+psycopg://nexo:${DB_PASSWORD:-nexo-lab-local}@db:5432/nexo
+      LAB_SEED: ${LAB_SEED:-nexo-2026}
+      LAB_INSTANCE: nexo-lab
+      SESSION_COOKIE_SECURE: "false"
+      REGISTRATION_CODE: ${REGISTRATION_CODE:-OCEAN-A-2026}
+      MAX_PUBLIC_ACCOUNTS: ${MAX_PUBLIC_ACCOUNTS:-20}
+      STORE_INITIAL_BALANCE: ${STORE_INITIAL_BALANCE:-15000}
+      PUBLIC_BASE_URL: http://localhost:${APP_PORT:-8080}
+    ports:
+      - "127.0.0.1:${APP_PORT:-8080}:8000"
+    networks:
+      - backend
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m,mode=1777
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 640M
+
+  internal-service:
+    image: nexo-lab/internal:1.1
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    network_mode: "service:app"
+    environment:
+      LAB_SEED: ${LAB_SEED:-nexo-2026}
+      ARCHIVE_PORT: "9203"
+    depends_on:
+      app:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+  internal-archive:
+    image: nexo-lab/internal:1.1
+    command:
+      ["uvicorn", "archive:app", "--host", "127.0.0.1", "--port", "9203"]
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    network_mode: "service:app"
+    environment:
+      LAB_SEED: ${LAB_SEED:-nexo-2026}
+    depends_on:
+      app:
+        condition: service_started
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  db-data:
